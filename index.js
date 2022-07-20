@@ -185,7 +185,7 @@ app.post('/talker',
 // REQUISITO 6 
 //
 //  MIDDLEWARE REQUISITO 6
-async function req6 (req, res) {
+async function req6(req, res) {
   const { id } = req.params;
   const data = await readFile();
   const { name, age, talk: { watchedAt, rate } } = req.body;
@@ -205,6 +205,23 @@ app.put('/talker/:id',
         req5watchedAtValidation,
         req5RateValidation,
         req6);
+
+// REQUISITO 6 
+//
+//  MIDDLEWARE REQUISITO 6
+async function req7(req, res) {
+  const { id } = req.params;
+  const data = await readFile();
+  const talkerIndex = data.findIndex((talker) => +talker.id === +id);
+
+  data.splice(talkerIndex, 1);
+  await escrita(data);
+  res.status(204).end();
+}
+
+app.delete('/talker/:id', 
+        req5TokenValidation,
+        req7);
 
 app.listen(PORT, () => {
   console.log('Online');
