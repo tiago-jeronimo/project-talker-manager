@@ -45,6 +45,27 @@ const req1 = async (_req, res) => {
 app.get('/talker', req1);
 //
 //
+
+//
+// REQUISITO 2
+//
+//  MIDDLEWARE REQUISITO 2
+const req2 = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const data = await readFile();
+    const talkerId = data.find((el) => el.id === Number(id));
+    if (!talkerId) return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    res.status(200).json(talkerId);
+  } catch (error) {
+    console.log(error);
+  }
+};
+//
+// ROTA
+app.get('/talker/:id', req2);
+//
+//
 app.listen(PORT, () => {
   console.log('Online');
 });
