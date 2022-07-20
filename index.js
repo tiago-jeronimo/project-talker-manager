@@ -46,7 +46,48 @@ const req1 = async (_req, res) => {
 app.get('/talker', req1);
 //
 //
+async function escrita(param) {
+  await fs.writeFile('./talker.json', JSON.stringify(param));
+}
 
+async function req5(req, res) {
+  const data = await readFile();
+  const { name, age, talk: { watchedAt, rate } } = req.body;
+  data.push({ id: data.length + 1, name, age, talk: { watchedAt, rate } });
+  await escrita(data);
+  res.status(201).json({
+    id: data.length,
+    name,
+    age,
+    talk: { watchedAt, rate },
+  });
+}
+
+//  MIDDLEWARES REQUISITO 5
+const req5TokenValidation = (req, res, next) => {
+  const { authorization } = req.headers;
+    if (!authorization) return res.status(401).json({ message: 'Token não encontrado' });
+    if (authorization.length < 16) return res.status(401).json({ message: 'Token inválido' });
+ next();
+};
+
+// REQUISITO 8
+//
+//  MIDDLEWARE REQUISITO 8
+async function req8(req, res) {
+  const { q } = req.query;
+  try {
+    const data = await readFile();
+    const search = data.filter((item) => item.name.includes(q));
+    res.status(200).json(search);
+  } catch (err) {
+    console.log(err.message);
+  }
+}
+
+app.get('/talker/search', 
+        req5TokenValidation,
+        req8);
 //
 // REQUISITO 2
 //
@@ -97,13 +138,6 @@ app.post('/login', req3, (_req, res) => {
 
 // REQUISITO5 
 //
-//  MIDDLEWARES REQUISITO 5
-const req5TokenValidation = (req, res, next) => {
-    const { authorization } = req.headers;
-      if (!authorization) return res.status(401).json({ message: 'Token não encontrado' });
-      if (authorization.length < 16) return res.status(401).json({ message: 'Token inválido' });
-   next();
-};
 
 const req5NameValidation = (req, res, next) => {
     const { name } = req.body;
@@ -152,22 +186,6 @@ const req5RateValidation = (req, res, next) => {
      next();
 };
 
-async function escrita(param) {
-  await fs.writeFile('./talker.json', JSON.stringify(param));
-}
-
-async function req5(req, res) {
-  const data = await readFile();
-  const { name, age, talk: { watchedAt, rate } } = req.body;
-  data.push({ id: data.length + 1, name, age, talk: { watchedAt, rate } });
-  await escrita(data);
-  res.status(201).json({
-    id: data.length,
-    name,
-    age,
-    talk: { watchedAt, rate },
-  });
-}
 //
 // ROTA
 app.post('/talker', 
@@ -206,9 +224,9 @@ app.put('/talker/:id',
         req5RateValidation,
         req6);
 
-// REQUISITO 6 
+// REQUISITO 7
 //
-//  MIDDLEWARE REQUISITO 6
+//  MIDDLEWARE REQUISITO 7
 async function req7(req, res) {
   const { id } = req.params;
   const data = await readFile();
