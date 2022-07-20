@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs').promises;
+const crypto = require('crypto');
 
 const app = express();
 app.use(bodyParser.json());
@@ -66,6 +67,33 @@ const req2 = async (req, res) => {
 app.get('/talker/:id', req2);
 //
 //
+
+//
+// REQUISITO 3
+//
+//  MIDDLEWARE REQUISITO 3 
+const req3 = (req, res, next) => {
+  const { email, password } = req.body;
+  const regex = /^[\w.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+  if (!email) return res.status(400).json({ message: 'O campo "email" é obrigatório' });
+  if (!regex.test(email)) {
+    return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' });
+  }
+  if (!password) return res.status(400).json({ message: 'O campo "password" é obrigatório' });
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'O "password" deve ter pelo menos 6 caracteres' });
+  }
+  next();
+};
+//
+// ROTA
+app.post('/login', req3, (_req, res) => {
+  const token = crypto.randomBytes(8).toString('hex');
+  res.status(200).json({ token });
+});
+//
+//
+
 app.listen(PORT, () => {
   console.log('Online');
 });
